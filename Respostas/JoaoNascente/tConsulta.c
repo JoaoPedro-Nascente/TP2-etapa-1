@@ -33,6 +33,17 @@ void desaloca_consulta(void *consulta)
     free(c);
 }
 
+void desaloca_array_consultas(void **arr, int tam)
+{
+    tConsulta **consultas = (tConsulta **)arr;
+    for (int i = 0; i < tam; i++)
+    {
+        desaloca_consulta(consultas[i]);
+    }
+
+    free(consultas);
+}
+
 void **le_bd_consulta(char *caminho_bd, char *nome_arquivo, int *tam)
 {
     char caminho[1000];

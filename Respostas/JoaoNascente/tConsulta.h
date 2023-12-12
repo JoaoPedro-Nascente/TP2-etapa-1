@@ -10,6 +10,7 @@ typedef struct tConsulta tConsulta;
 
 void *cria_consulta(char *nomePaciente, char *cpfPaciente, char *nomeMedico, char *crm, char *data);
 void desaloca_consulta(void *consulta);
+void desaloca_array_consultas(void **arr, int tam);
 void *realiza_consulta();
 void **le_bd_consulta(char *caminho_bd, char *nome_arquivo, int *tam);
 

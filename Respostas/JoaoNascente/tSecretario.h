@@ -12,8 +12,10 @@ enum nivelAcesso
     ADMIN
 };
 
-void *cria_secretario(char *usuario, char *senha, enum nivelAcesso nivelAcesso);
+void *cria_secretario(char *usuario, char *senha, char *nivelAcesso);
 void desaloca_secretario(void *s);
 char *retornaLoginSecretario(void *s);
+char *retornaSenhaSecretario(void *s);
+enum nivelAcesso retornaNivelAcesso(void *s);
 
 #endif

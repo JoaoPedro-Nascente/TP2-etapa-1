@@ -49,10 +49,7 @@ void desaloca_lesoes(void **lesoes, int nLesoes)
         desaloca_lesao(l[i]);
     }
 
-    if (nLesoes > 0)
-    {
-        free(l);
-    }
+    free(l);
 }
 
 void **le_bd_lesao(char *caminho_bd, char *nome_arquivo, int *tam)

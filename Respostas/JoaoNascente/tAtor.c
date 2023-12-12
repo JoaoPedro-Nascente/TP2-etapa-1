@@ -15,17 +15,21 @@ struct tAtor
     enum tipoAtor tipoAtor;
     enum generoAtor generoAtor;
     void *atorEspecifico;
-    destroi_ator_generico *funcao_desaloca;
+    destroi_ator_generico funcao_desaloca;
+    retornaSenhaAtor retornaSenha;
 };
+
+enum generoAtor parseGenero(char *genero);
 
 void *cria_ator(char *nome,
                 char *cpf,
                 char *data,
                 char *telefone,
                 enum tipoAtor tipoAtor,
-                enum generoAtor generoAtor,
+                char *generoAtor,
                 void *atorEspecifico,
-                destroi_ator_generico *funcao_desaloca)
+                destroi_ator_generico funcao_desaloca,
+                retornaSenhaAtor retornaSenha)
 {
     tAtor *ator = (tAtor *)malloc(sizeof(tAtor));
 
@@ -34,9 +38,10 @@ void *cria_ator(char *nome,
     strcpy(ator->data, data);
     strcpy(ator->telefone, telefone);
     ator->tipoAtor = tipoAtor;
-    ator->generoAtor = generoAtor;
+    ator->generoAtor = parseGenero(generoAtor);
     ator->atorEspecifico = atorEspecifico;
     ator->funcao_desaloca = funcao_desaloca;
+    ator->retornaSenha = retornaSenha;
 
     return ator;
 }
@@ -50,9 +55,10 @@ void desaloca_ator(tAtor *ator)
     free(a);
 }
 
-tAtor **realoca_array_atores(tAtor **atores, int novoTam)
+tAtor **realoca_array_atores(void **atores, int novoTam)
 {
-    return (tAtor **)realloc(atores, novoTam);
+    tAtor **arr = (tAtor **)atores;
+    return (tAtor **)realloc(arr, novoTam);
 }
 
 void desaloca_array_atores(void **arr, int tam)
@@ -119,6 +125,20 @@ int existeLogin(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *logi
     return 0;
 }
 
+tAtor *verificaCredenciais(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login, char *senha)
+{
+    if (existeLogin(arr1, tam_arr1, arr2, tam_arr2, login))
+    {
+        tAtor *ator = retorna_ator_login(arr1, tam_arr1, arr2, tam_arr2, login);
+        if (strcmp(ator->retornaSenha(ator->atorEspecifico), senha) == 0)
+        {
+            return ator;
+        }
+    }
+
+    return NULL;
+}
+
 tAtor *retorna_ator_login(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login)
 {
     tAtor **atores1 = (tAtor **)arr1;
@@ -168,4 +188,38 @@ void **le_bd_ator(char *caminho_bd, char *nome_arquivo, int *tam)
 
     *tam = 0;
     return NULL;
+}
+
+enum generoAtor parseGenero(char *genero)
+{
+    if (strcmp(genero, "MASCULINO") == 0)
+        return Masculino;
+    if (strcmp(genero, "FEMININO") == 0)
+        return Feminino;
+    if (strcmp(genero, "OUTROS") == 0)
+        return Outros;
+}
+
+enum tipoAtor retornaTipoAtor(tAtor *ator)
+{
+    return ator->tipoAtor;
+}
+
+void *retornaAtorEspecifico(tAtor *ator)
+{
+    return ator->atorEspecifico;
+}
+
+void atualizaBdAtor(tAtor *ator, char *caminhoBd, char *nomeBd)
+{
+    char caminho[1000];
+    strcpy(caminho, caminhoBd);
+    strcat(caminho, nomeBd);
+    FILE *fp;
+
+    fp = fopen(caminho, "ab");
+
+    fwrite(ator, 1, sizeof(tAtor), fp);
+
+    fclose(fp);
 }

@@ -15,7 +15,7 @@ enum tipoPele
 
 void *cria_paciente();
 
-void realiza_consulta(void *paciente,
+void consultaPaciente(void *paciente,
                       int possui_diabetes,
                       int fuma,
                       int possui_alergia,

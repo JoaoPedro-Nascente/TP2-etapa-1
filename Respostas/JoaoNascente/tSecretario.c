@@ -11,13 +11,15 @@ struct tSecretario
     enum nivelAcesso nivelAcesso;
 };
 
-void *cria_secretario(char *usuario, char *senha, enum nivelAcesso nivelAcesso)
+enum nivelAcesso parseNivelAcesso(char *nivelAcesso);
+
+void *cria_secretario(char *usuario, char *senha, char *nivelAcesso)
 {
     tSecretario *secretario = (tSecretario *)malloc(sizeof(tSecretario));
 
     strcpy(secretario->usuario, usuario);
     strcpy(secretario->senha, senha);
-    secretario->nivelAcesso = nivelAcesso;
+    secretario->nivelAcesso = parseNivelAcesso(nivelAcesso);
 
     return secretario;
 }
@@ -32,4 +34,22 @@ void desaloca_secretario(void *s)
 char *retornaLoginSecretario(void *s)
 {
     return ((tSecretario *)s)->usuario;
+}
+
+char *retornaSenhaSecretario(void *s)
+{
+    return ((tSecretario *)s)->senha;
+}
+
+enum nivelAcesso parseNivelAcesso(char *nivelAcesso)
+{
+    if (strcmp(nivelAcesso, "ADMIN"))
+        return ADMIN;
+    if (strcmp(nivelAcesso, "USER"))
+        return USER;
+}
+
+enum nivelAcesso retornaNivelAcesso(void *s)
+{
+    return ((tSecretario *)s)->nivelAcesso;
 }

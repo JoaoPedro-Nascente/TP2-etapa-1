@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "tReceita.h"
+
+#include "tSistema.h"
 
 int main(int argc, char *argv[])
 {
