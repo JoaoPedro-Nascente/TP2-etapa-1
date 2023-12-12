@@ -14,5 +14,6 @@ enum nivelAcesso
 
 void *cria_secretario(char *usuario, char *senha, enum nivelAcesso nivelAcesso);
 void desaloca_secretario(void *s);
+char *retornaLoginSecretario(void *s);
 
 #endif

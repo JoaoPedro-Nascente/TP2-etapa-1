@@ -9,5 +9,7 @@ typedef struct tLesao tLesao;
 
 void *cria_lesao(char *rotulo, char *diagnostico, char *regiao_corpo, int tamanho, int cirurgia, int crioterapia);
 void desaloca_lesao(void *l);
+void desaloca_lesoes(void **lesoes, int nLesoes);
+void **le_bd_lesao(char *caminho_bd, char *nome_arquivo, int *tam);
 
 #endif

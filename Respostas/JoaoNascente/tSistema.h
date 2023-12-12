@@ -1,9 +1,12 @@
 #ifndef _TSISTEMA_H
 #define _TSISTEMA_H
 
+#include "tAtor.h"
+
 typedef struct tSistema tSistema;
 
-void *cria_sistema();
+tSistema *cria_sistema(char *caminho_saida);
 void desaloca_sistema(tSistema *s);
+void *realiza_consulta();
 
 #endif

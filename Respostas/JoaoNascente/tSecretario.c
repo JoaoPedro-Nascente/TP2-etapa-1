@@ -28,3 +28,8 @@ void desaloca_secretario(void *s)
 
     free(secretario);
 }
+
+char *retornaLoginSecretario(void *s)
+{
+    return ((tSecretario *)s)->usuario;
+}

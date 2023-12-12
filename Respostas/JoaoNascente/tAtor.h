@@ -33,6 +33,20 @@ void *cria_ator(char *nome,
                 void *atorEspecifico,
                 destroi_ator_generico *funcao_desaloca);
 
-void desaloca_ator(void *ator);
+void desaloca_ator(tAtor *ator);
+
+tAtor **realoca_array_atores(tAtor **atores, int novoTam);
+
+void desaloca_array_atores(void **arr, int tam);
+
+int atorEstaNoArray(void **arr, int tam_arr, char *cpf);
+
+tAtor *retorna_ator(void **arr, int tam_arr, char *cpf);
+
+int existeLogin(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login);
+
+tAtor *retorna_ator_login(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login);
+
+void **le_bd_ator(char *caminho_bd, char *nome_arquivo, int *tam);
 
 #endif

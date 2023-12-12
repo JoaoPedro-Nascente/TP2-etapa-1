@@ -28,3 +28,13 @@ void desaloca_medico(void *m)
 
     free(medico);
 }
+
+char *retornaLoginMedico(void *m)
+{
+    return ((tMedico *)m)->usuario;
+}
+
+char *retornaSenhaMedico(void *m)
+{
+    return ((tMedico *)m)->senha;
+}

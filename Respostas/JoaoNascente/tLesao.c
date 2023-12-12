@@ -39,3 +39,45 @@ void desaloca_lesao(void *l)
 
     free(lesao);
 }
+
+void desaloca_lesoes(void **lesoes, int nLesoes)
+{
+    tLesao **l = (tLesao **)lesoes;
+
+    for (int i; i < nLesoes; i++)
+    {
+        desaloca_lesao(l[i]);
+    }
+
+    if (nLesoes > 0)
+    {
+        free(l);
+    }
+}
+
+void **le_bd_lesao(char *caminho_bd, char *nome_arquivo, int *tam)
+{
+    char caminho[1000];
+    strcpy(caminho, caminho_bd);
+    strcat(caminho, nome_arquivo);
+
+    FILE *fp;
+    if (fp = fopen(caminho, "rb"))
+    {
+        tLesao **lesoes = (tLesao **)malloc(sizeof(tLesao *));
+        int i = 0;
+
+        while (fread(lesoes[i], sizeof(tLesao), 1, fp) == 1)
+        {
+            i++;
+            lesoes = (tLesao **)realloc(lesoes, sizeof(tLesao *) * (i + 1));
+        }
+        *tam = i;
+        lesoes = (tLesao **)realloc(lesoes, sizeof(tLesao *) * i);
+
+        return (void **)lesoes;
+    }
+
+    *tam = 0;
+    return NULL;
+}
