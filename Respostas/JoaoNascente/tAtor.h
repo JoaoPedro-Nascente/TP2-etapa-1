@@ -36,27 +36,21 @@ void *cria_ator(char *nome,
                 retornaSenhaAtor retornaSenha);
 
 void desaloca_ator(tAtor *ator);
-
 tAtor **realoca_array_atores(void **atores, int novoTam);
-
 void desaloca_array_atores(void **arr, int tam);
-
 int atorEstaNoArray(void **arr, int tam_arr, char *cpf);
-
-tAtor *retorna_ator(void **arr, int tam_arr, char *cpf);
-
+tAtor *retorna_ator_cpf(void **arr, int tam_arr, char *cpf);
 int existeLogin(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login);
-
 tAtor *verificaCredenciais(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login, char *senha);
-
 tAtor *retorna_ator_login(void **arr1, int tam_arr1, void **arr2, int tam_arr2, char *login);
-
 void **le_bd_ator(char *caminho_bd, char *nome_arquivo, int *tam);
-
 enum tipoAtor retornaTipoAtor(tAtor *ator);
-
 void *retornaAtorEspecifico(tAtor *ator);
-
 void atualizaBdAtor(tAtor *ator, char *caminhoBd, char *nomeBd);
+char *retornaNomeAtor(void *ator);
+char *retornaCpfAtor(void *ator);
+char *retornaDataNascimentoAtor(void *ator);
+enum generoAtor retornaGeneroAtor(void *ator);
+int retornaIdadeAtor(void *ator);
 
 #endif

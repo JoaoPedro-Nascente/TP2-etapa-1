@@ -69,7 +69,7 @@ void imprimeEmArquivoReceita(void *dado, char *path)
     tReceita *r = (tReceita *)dado;
 
     strcpy(caminho, path);
-    strcat(caminho, "/relatorio.txt");
+    strcat(caminho, "/receita.txt");
 
     FILE *fp;
     fp = fopen(path, "a");

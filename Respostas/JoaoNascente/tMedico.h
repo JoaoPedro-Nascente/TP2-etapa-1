@@ -11,5 +11,6 @@ void *cria_medico(char *crm, char *usuario, char *senha);
 void desaloca_medico(void *m);
 char *retornaLoginMedico(void *m);
 char *retornaSenhaMedico(void *m);
+char *retornaCrmMedico(void *m);
 
 #endif

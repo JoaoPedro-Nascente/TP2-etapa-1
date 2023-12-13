@@ -70,3 +70,23 @@ void **le_bd_consulta(char *caminho_bd, char *nome_arquivo, int *tam)
     *tam = 0;
     return NULL;
 }
+
+void atualizaBdConsultas(tConsulta *consulta, char *caminhoBd, char *nomeBd)
+{
+    char caminho[1000];
+    strcpy(caminho, caminhoBd);
+    strcat(caminho, nomeBd);
+    FILE *fp;
+
+    fp = fopen(caminho, "ab");
+
+    fwrite(consulta, 1, sizeof(tConsulta), fp);
+
+    fclose(fp);
+}
+
+tConsulta **realoca_array_consultas(void **consultas, int novoTam)
+{
+    tConsulta **arr = (tConsulta **)consultas;
+    return (tConsulta **)realloc(arr, novoTam);
+}

@@ -223,3 +223,52 @@ void atualizaBdAtor(tAtor *ator, char *caminhoBd, char *nomeBd)
 
     fclose(fp);
 }
+
+char *retornaNomeAtor(void *ator)
+{
+    return ((tAtor *)ator)->nome;
+}
+
+char *retornaCpfAtor(void *ator)
+{
+    return ((tAtor *)ator)->cpf;
+}
+
+char *retornaDataNascimentoAtor(void *ator)
+{
+    return ((tAtor *)ator)->data;
+}
+
+enum generoAtor retornaGeneroAtor(void *ator)
+{
+    return ((tAtor *)ator)->generoAtor;
+}
+
+int retornaIdadeAtor(void *ator)
+{
+    char *pt;
+    int dataInt[3];
+    int cont = 0;
+    int idade;
+
+    pt = strtok(((tAtor *)ator)->data, "/");
+    while (pt)
+    {
+        dataInt[cont] = atoi(pt);
+        cont++;
+        pt = strtok(NULL, "/");
+    }
+
+    idade = 2023 - dataInt[2];
+    if (11 < dataInt[1])
+    {
+        idade--;
+    }
+    else if (dataInt[1] == 11)
+    {
+        if (dataInt[0] < 9)
+            idade--;
+    }
+
+    return idade;
+}

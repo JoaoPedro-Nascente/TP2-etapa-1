@@ -14,6 +14,22 @@ struct tPaciente
     enum tipoPele tipoPele;
 };
 
+enum tipoPele parseTipoPele(char *tpPele)
+{
+    if (strcmp(tpPele, "I"))
+        return I;
+    if (strcmp(tpPele, "II"))
+        return II;
+    if (strcmp(tpPele, "III"))
+        return III;
+    if (strcmp(tpPele, "IV"))
+        return IV;
+    if (strcmp(tpPele, "V"))
+        return V;
+    if (strcmp(tpPele, "VI"))
+        return VI;
+}
+
 void *cria_paciente()
 {
     tPaciente *p = (tPaciente *)malloc(sizeof(tPaciente));
@@ -26,12 +42,12 @@ void *cria_paciente()
     return p;
 }
 
-void realiza_consulta(void *paciente,
+void consultaPaciente(void *paciente,
                       int possui_diabetes,
                       int fuma,
                       int possui_alergia,
                       int possui_historico_cancer,
-                      enum tipoPele tipoPele)
+                      char *tipoPele)
 {
     tPaciente *p = (tPaciente *)paciente;
 
@@ -39,7 +55,7 @@ void realiza_consulta(void *paciente,
     p->fuma = fuma;
     p->possui_alergia = possui_alergia;
     p->possui_historico_cancer = possui_historico_cancer;
-    p->tipoPele = tipoPele;
+    p->tipoPele = parseTipoPele(tipoPele);
 }
 
 void desaloca_paciente(void *paciente)

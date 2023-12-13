@@ -13,5 +13,7 @@ void desaloca_consulta(void *consulta);
 void desaloca_array_consultas(void **arr, int tam);
 void *realiza_consulta();
 void **le_bd_consulta(char *caminho_bd, char *nome_arquivo, int *tam);
+void atualizaBdConsultas(tConsulta *consulta, char *caminhoBd, char *nomeBd);
+tConsulta **realoca_array_consultas(void **consultas, int novoTam);
 
 #endif

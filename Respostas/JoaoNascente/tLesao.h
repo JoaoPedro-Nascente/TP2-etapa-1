@@ -11,5 +11,11 @@ void *cria_lesao(char *rotulo, char *diagnostico, char *regiao_corpo, int tamanh
 void desaloca_lesao(void *l);
 void desaloca_lesoes(void **lesoes, int nLesoes);
 void **le_bd_lesao(char *caminho_bd, char *nome_arquivo, int *tam);
+char *retornaRotuloLesao(tLesao *lesao);
+char *retornaDiagnosticoLesao(tLesao *lesao);
+char *retornaRegiaoLesao(tLesao *lesao);
+int retornaTamanhoLesao(tLesao *lesao);
+int foiCirurgia(tLesao *lesao);
+int foiCrioterapia(tLesao *lesao);
 
 #endif

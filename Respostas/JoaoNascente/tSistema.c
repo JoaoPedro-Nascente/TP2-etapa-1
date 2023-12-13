@@ -9,6 +9,13 @@
 #include "tPaciente.h"
 #include "tConsulta.h"
 #include "tLesao.h"
+#include "tFila.h"
+#include "tBusca.h"
+#include "tReceita.h"
+#include "tBiopsia.h"
+#include "tBusca.h"
+#include "tRelatorioGeral.h"
+#include "tEncaminhamento.h"
 
 struct tSistema
 {
@@ -26,6 +33,7 @@ struct tSistema
     void **lesoes;
     tAtor *usuario;
     int encerra;
+    tFila *fila;
 };
 
 void *telaDeAcesso(tSistema *s);
@@ -33,6 +41,15 @@ void exibeMenu(tSistema *s);
 void cadastroSecretario(tSistema *s);
 void cadastroMedico(tSistema *s);
 void cadastroPaciente(tSistema *s);
+void consulta(tSistema *s);
+int exibeMenuPosConsulta(tSistema *s, tAtor *paciente, char *data);
+void buscaPaciente(tSistema *s);
+void cadastraLesao(tSistema *s);
+void executaFila(tSistema *s);
+void geraRelatorioGeral(tSistema *s);
+void geraReceitaMedica(tSistema *s, tAtor *paciente, char *data);
+void geraBiopsia(tSistema *s, tAtor *paciente, char *data, tLesao **lesoes, int nLesoes);
+void geraEncaminhamento(tSistema *s, tAtor *paciente, char *data);
 
 tSistema *cria_sistema(char *caminho_saida)
 {
@@ -66,6 +83,8 @@ tSistema *cria_sistema(char *caminho_saida)
 
     s->encerra = 0;
 
+    s->fila = criaFila();
+
     return s;
 }
 
@@ -76,6 +95,7 @@ void desaloca_sistema(tSistema *s)
     desaloca_array_atores(s->pacientes_sistema, s->nPacientesSistema);
     desaloca_array_consultas(s->consultas, s->nConsultasSistema);
     desaloca_lesoes(s->lesoes, s->nLesoes);
+    desalocaFila(s->fila);
 
     free(s);
 }
@@ -245,6 +265,76 @@ void cadastroPaciente(tSistema *s)
     scanf("%c", &confirmar);
 }
 
+void consulta(tSistema *s)
+{
+    char cpf[TAM_CPF];
+    tAtor *paciente;
+    char data[TAM_DATA];
+    int possui_diabetes;
+    int fuma;
+    int possui_alergia;
+    int possui_historico_cancer;
+    char tipoPele[3];
+    int encerra = 0;
+
+    printf("#################### CONSULTA MEDICA #######################\n");
+    printf("CPF DO PACIENTE:\n");
+    printf("############################################################\n");
+
+    scanf("%s", cpf);
+
+    paciente = retorna_ator_cpf(s->pacientes_sistema, s->nPacientesSistema, cpf);
+    if (paciente != NULL)
+    {
+        printf("#################### CONSULTA MEDICA #######################\n");
+        printf("CPF DO PACIENTE: %s\n", retornaCpfAtor(paciente));
+        printf("- - -\n");
+        printf("- NOME: %s\n", retornaNomeAtor(paciente));
+        printf("- DATA DE NASCIMENTO: %s\n", retornaDataNascimentoAtor(paciente));
+        printf("- - -\n");
+        printf("\n");
+        printf("DATA DA CONSULTA :\n");
+        printf("POSSUI DIABETES :\n");
+        printf("FUMANTE :\n");
+        printf("ALEGIA A MEDICAMENTO :\n");
+        printf("HISTORICO DE CANCER :\n");
+        printf("TIPO DE PELE :\n");
+        printf("############################################################\n");
+
+        scanf("%s", data);
+        scanf("%d", &possui_diabetes);
+        scanf("%d", &fuma);
+        scanf("%d", &possui_alergia);
+        scanf("%d", &possui_historico_cancer);
+        scanf("%s", tipoPele);
+
+        consultaPaciente(retornaAtorEspecifico(paciente), possui_diabetes, fuma, possui_alergia, possui_historico_cancer, tipoPele);
+
+        s->nConsultasSistema++;
+        s->consultas = (void **)realoca_array_consultas(s->consultas, s->nConsultasSistema);
+        if (retornaTipoAtor(s->usuario) == Medico)
+            ((tConsulta **)s->consultas)[s->nConsultasSistema - 1] = cria_consulta(retornaNomeAtor(paciente), retornaCpfAtor(paciente), retornaNomeAtor((void *)s->usuario), retornaCrmMedico(retornaAtorEspecifico(s->usuario)), data);
+        if (retornaTipoAtor(s->usuario) == Secretario)
+            ((tConsulta **)s->consultas)[s->nConsultasSistema - 1] = cria_consulta(retornaNomeAtor(paciente), retornaCpfAtor(paciente), "", "", data);
+        atualizaBdConsultas(((tConsulta **)s->consultas)[s->nConsultasSistema - 1], s->caminho_bd, "consultas.bin");
+
+        while (!encerra)
+        {
+            exibeMenuPosConsulta(s, paciente, data);
+        }
+    }
+    else
+    {
+        printf("#################### CONSULTA MEDICA #######################\n");
+        printf("CPF DO PACIENTE: %s\n", cpf);
+        printf("PACIENTE SEM CADASTRO\n");
+        printf("\n");
+    }
+
+    printf("PRESSIONE QUALQUER TECLA PARA VOLTAR PARA O MENU INICIAL\n");
+    printf("############################################################\n");
+}
+
 void exibeMenu(tSistema *s)
 {
     int opcao;
@@ -301,23 +391,23 @@ void exibeMenu(tSistema *s)
         break;
 
     case 3:
-        /* code */
+        cadastroPaciente(s);
         break;
 
     case 4:
-        /* code */
+        consulta(s);
         break;
 
     case 5:
-        /* code */
+        buscaPaciente(s);
         break;
 
     case 6:
-        /* code */
+        geraRelatorioGeral(s);
         break;
 
     case 7:
-        /* code */
+        executaFila(s);
         break;
 
     case 8:
@@ -327,4 +417,343 @@ void exibeMenu(tSistema *s)
     default:
         break;
     }
+}
+
+int exibeMenuPosConsulta(tSistema *s, tAtor *paciente, char *data)
+{
+    int opcao;
+    int nLesoesCadastradas;
+    void **lesoesCirurgia = NULL;
+    int nLesoesCirurgia = 0;
+
+    printf("#################### CONSULTA MEDICA #######################\n");
+    printf("ESCOLHA UMA OPCAO:\n");
+    printf("(1) CADASTRAR LESAO\n");
+    printf("(2) GERAR RECEITA MEDICA\n");
+    printf("(3) SOLICITACAO DE BIOPSIA\n");
+    printf("(4) ENCAMINHAMENTO\n");
+    printf("(5) ENCERRAR CONSULTA\n");
+    printf("############################################################\n");
+
+    scanf("%d", &opcao);
+
+    switch (opcao)
+    {
+    case 1:
+        cadastraLesao(s);
+        nLesoesCadastradas++;
+        break;
+
+    case 2:
+        geraReceitaMedica(s, paciente, data);
+        break;
+
+    case 3:
+        for (int i = s->nLesoes - nLesoesCadastradas; i < s->nLesoes; i++)
+        {
+            if (foiCirurgia(((tLesao **)s->lesoes)[i]))
+            {
+                nLesoesCirurgia++;
+                lesoesCirurgia = (void **)realloc(lesoesCirurgia, nLesoesCirurgia);
+                ((tLesao **)lesoesCirurgia)[nLesoesCirurgia - 1] = ((tLesao **)s->lesoes)[i];
+            }
+        }
+        geraBiopsia(s, paciente, data, (tLesao **)lesoesCirurgia, nLesoesCirurgia);
+        break;
+
+    case 4:
+        geraEncaminhamento(s, paciente, data);
+        break;
+
+    case 5:
+        return 1;
+        break;
+
+    default:
+        break;
+    }
+}
+
+void buscaPaciente(tSistema *s)
+{
+    char nome[100];
+    int nPacientesNome = 0;
+    tAtor **pacientes = NULL;
+    tBusca *busca;
+    char confirmar;
+    int opcao;
+    char nomeAtor[100];
+
+    printf("#################### BUSCAR PACIENTES #######################\n");
+    printf("NOME DO PACIENTE:\n");
+    printf("############################################################");
+    scanf("%s", nome);
+
+    for (int i = 0; i < s->nPacientesSistema; i++)
+    {
+        strcpy(nomeAtor, retornaNomeAtor((void *)(((tAtor **)s->pacientes_sistema)[i])));
+        if (strcmp(nome, nomeAtor) == 0)
+        {
+            nPacientesNome++;
+
+            pacientes = realoca_array_atores((void **)pacientes, nPacientesNome);
+            pacientes[nPacientesNome - 1] = ((tAtor **)s->pacientes_sistema)[i];
+        }
+    }
+
+    busca = criaBusca(pacientes, nPacientesNome);
+
+    if (nPacientesNome == 0)
+    {
+        printf("#################### BUSCAR PACIENTES #######################\n");
+        printf("NENHUM PACIENTE FOI ENCONTRADO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+        printf("############################################################\n");
+
+        scanf("%c", &confirmar);
+        desalocaBusca(busca);
+        free(pacientes);
+    }
+    else
+    {
+        printf("#################### BUSCAR PACIENTES #######################\n");
+        printf("PACIENTES ENCONTRADOS:\n");
+        imprimeNaTelaBusca(busca);
+        printf("\n");
+
+        printf("SELECIONE UMA OPÇÃO:\n");
+        printf("(1) ENVIAR LISTA PARA IMPRESSAO\n");
+        printf("(2) RETORNAR AO MENU PRINCIPAL\n");
+        printf("############################################################\n");
+        scanf("%d", &opcao);
+
+        if (opcao == 1)
+        {
+            printf("#################### BUSCAR PACIENTES #######################\n");
+            printf("LISTA ENVIADA PARA FILA DE IMPRESSAO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU PRINCIPAL\n");
+            printf("############################################################\n");
+            insereDocumentoFila(s->fila, busca, imprimeNaTelaBusca, imprimeEmArquivoBusca, desalocaBusca);
+        }
+        if (opcao == 2)
+        {
+            desalocaBusca(busca);
+        }
+    }
+}
+
+void executaFila(tSistema *s)
+{
+    int opcao;
+
+    printf("################### FILA DE IMPRESSAO MEDICA #####################\n");
+    printf("ESCOLHA UMA OPCAO:\n");
+    printf("(1) EXECUTAR FILA DE IMPRESSAO\n");
+    printf("(2) RETORNAR AO MENU ANTERIOR\n");
+    printf("############################################################\n");
+    scanf("%d", &opcao);
+
+    if (opcao == 1)
+    {
+        imprimeFila(s->fila, s->caminho_saida);
+    }
+}
+
+void geraRelatorioGeral(tSistema *s)
+{
+    tRelatorioGeral *relatorio;
+    int totalPacientes = 0;
+    int mediaIdadePacientes = 0;
+    int qtdPacientesF = 0;
+    int qtdPacientesM = 0;
+    int qtdPacientesO = 0;
+    int tamMedioLesoes = 0;
+    int totalLesoes = 0;
+    int totalCirurgias = 0;
+    int totalCrioterapias = 0;
+    int opcao;
+
+    totalPacientes = s->nPacientesSistema;
+    totalLesoes = s->nLesoes;
+
+    for (int i = 0; i < totalPacientes; i++)
+    {
+        if (retornaGeneroAtor(((tAtor **)s->pacientes_sistema)[i]) == Masculino)
+        {
+            qtdPacientesM++;
+        }
+        if (retornaGeneroAtor(((tAtor **)s->pacientes_sistema)[i]) == Feminino)
+        {
+            qtdPacientesF++;
+        }
+        if (retornaGeneroAtor(((tAtor **)s->pacientes_sistema)[i]) == Outros)
+        {
+            qtdPacientesO++;
+        }
+
+        mediaIdadePacientes += retornaIdadeAtor(((tAtor **)s->pacientes_sistema)[i]);
+    }
+    mediaIdadePacientes /= totalPacientes;
+
+    for (int i = 0; i < totalLesoes; i++)
+    {
+        tamMedioLesoes += retornaTamanhoLesao(((tLesao **)s->lesoes)[i]);
+
+        if (foiCirurgia(((tLesao **)s->lesoes)[i]))
+            totalCirurgias++;
+        if (foiCrioterapia(((tLesao **)s->lesoes)[i]))
+            totalCrioterapias++;
+    }
+
+    relatorio = criaRelatorio(totalPacientes, mediaIdadePacientes, qtdPacientesF, qtdPacientesM, qtdPacientesO, tamMedioLesoes, totalLesoes, totalCirurgias, totalCrioterapias);
+    printf("#################### RELATORIO GERAL #######################\n");
+    imprimeNaTelaRelatorio(relatorio);
+
+    printf("\n");
+    printf("SELECIONE UMA OPÇÃO:\n");
+    printf("(1) ENVIAR PARA IMPRESSAO\n");
+    printf("(2) RETORNAR AO MENU PRINCIPAL\n");
+    printf("############################################################\n");
+    scanf("%d", &opcao);
+
+    if (opcao == 1)
+    {
+        printf("#################### RELATORIO GERAL #######################\n");
+        printf("RELATÓRIO ENVIADO PARA FILA DE IMPRESSAO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+        printf("############################################################\n");
+        insereDocumentoFila(s->fila, relatorio, imprimeNaTelaRelatorio, imprimeEmArquivoRelatorio, desalocaRelatorio);
+    }
+    if (opcao == 2)
+    {
+        desalocaRelatorio(relatorio);
+    }
+}
+
+void cadastraLesao(tSistema *s)
+{
+    char rotulo[TAM_MAX_ROTULO];
+    char nRotulo[4];
+    char diagnostico[TAM_MAX_DIAGNOSTICO];
+    char regiao_corpo[TAM_MAX_REGIAO_CORPO];
+    int tamanho;
+    int cirurgia;
+    int crioterapia;
+    char confirmar;
+
+    printf("#################### CONSULTA MEDICA #######################\n");
+    printf("CADASTRO DE LESAO:\n");
+    printf("DIAGNOSTICO CLINICO:\n");
+    printf("REGIAO DO CORPO:\n");
+    printf("TAMANHO:\n");
+    printf("ENVIAR PARA CIRURGIA:\n");
+    printf("ENVIAR PARA CRIOTERAPIA:\n");
+    scanf("%s", diagnostico);
+    scanf("%s", regiao_corpo);
+    scanf("%d", &tamanho);
+    scanf("%d", &cirurgia);
+    scanf("%s", &crioterapia);
+
+    s->nLesoes++;
+    s->lesoes = (void **)realloc(s->lesoes, s->nLesoes);
+    strcpy(rotulo, "L");
+    itoa(s->nLesoes, nRotulo, 10);
+    strcat(rotulo, nRotulo);
+
+    ((tLesao **)s->lesoes)[s->nLesoes - 1] = cria_lesao(rotulo, diagnostico, regiao_corpo, tamanho, cirurgia, crioterapia);
+
+    printf("\n");
+    printf("LESAO REGISTRADA COM SUCESSO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+    printf("############################################################\n");
+    scanf("%c", &confirmar);
+}
+
+void geraReceitaMedica(tSistema *s, tAtor *paciente, char *data)
+{
+    char tipoUso[7];
+    eTipoUso tpUso;
+    char nomeMedicamento[MAX_TAM_NOME_MEDICAMENTO];
+    char tipoMedicamento[MAX_TAM_TIPO_MEDICAMENTO];
+    int quantidade;
+    char instrucoesUso[MAX_TAM_INSTRUCOES];
+    char confirma;
+
+    printf("#################### CONSULTA MEDICA #######################\n");
+    printf("RECEITA MEDICA:\n");
+    printf("TIPO DE USO:\n");
+    printf("NOME DO MEDICAMENTO:\n");
+    printf("TIPO DE MEDICAMENTO:\n");
+    printf("QUANTIDADE:\n");
+    printf("INSTRUÇÕES DE USO:\n");
+
+    scanf("%s", tipoUso);
+    scanf("%s", nomeMedicamento);
+    scanf("%s", tipoMedicamento);
+    scanf("%d", &quantidade);
+    scanf("%s", instrucoesUso);
+
+    if (strcmp(tipoUso, "TOPICO") == 0)
+        tpUso = TOPICO;
+    if (strcmp(tipoUso, "ORAL") == 0)
+        tpUso = ORAL;
+
+    if (retornaTipoAtor(s->usuario) == Medico)
+        insereDocumentoFila(s->fila, criaReceita(retornaNomeAtor(paciente), tpUso, nomeMedicamento, tipoMedicamento, instrucoesUso, quantidade, retornaNomeAtor(s->usuario), retornaCrmMedico(retornaAtorEspecifico(s->usuario)), data), imprimeNaTelaReceita, imprimeEmArquivoReceita, desalocaReceita);
+    if (retornaTipoAtor(s->usuario) == Secretario)
+        insereDocumentoFila(s->fila, criaReceita(retornaNomeAtor(paciente), tpUso, nomeMedicamento, tipoMedicamento, instrucoesUso, quantidade, "", "", data), imprimeNaTelaReceita, imprimeEmArquivoReceita, desalocaReceita);
+
+    printf("\n");
+    printf("RECEITA ENVIADA PARA FILA DE IMPRESSAO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+    printf("############################################################\n");
+    scanf("%c", confirma);
+}
+
+void geraBiopsia(tSistema *s, tAtor *paciente, char *data, tLesao **lesoes, int nLesoes)
+{
+    char confirma;
+
+    if (nLesoes > 0)
+    {
+        if (retornaTipoAtor(s->usuario) == Medico)
+            insereDocumentoFila(s->fila, criaBiopsia(retornaNomeAtor(paciente), retornaCpfAtor(paciente), lesoes, retornaNomeAtor(s->usuario), retornaCrmMedico(retornaAtorEspecifico(s->usuario)), data, nLesoes), imprimeNaTelaBiopsia, imprimeEmArquivoBiopsia, desalocaBiopsia);
+        if (retornaTipoAtor(s->usuario) == Secretario)
+            insereDocumentoFila(s->fila, criaBiopsia(retornaNomeAtor(paciente), retornaCpfAtor(paciente), lesoes, "", "", data, nLesoes), imprimeNaTelaBiopsia, imprimeEmArquivoBiopsia, desalocaBiopsia);
+
+        printf("#################### CONSULTA MEDICA #######################\n");
+        printf("SOLICITACAO DE BIOPSIA ENVIADA PARA FILA DE IMPRESSAO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+        printf("############################################################\n");
+
+        scanf("%c", &confirma);
+    }
+    else
+    {
+        printf("#################### CONSULTA MEDICA #######################\n");
+        printf("NAO E POSSIVEL SOLICITAR BIOPSIA SEM LESAO CIRURGICA. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+        printf("############################################################\n");
+        free(lesoes);
+
+        scanf("%c", &confirma);
+    }
+}
+
+void geraEncaminhamento(tSistema *s, tAtor *paciente, char *data)
+{
+    char especialidadeEncaminhada[50];
+    char motivo[300];
+    char confirma;
+
+    printf("#################### CONSULTA MEDICA #######################\n");
+    printf("ENCAMINHAMENTO:\n");
+    printf("ESPECIALIDADE ENCAMINHADA:\n");
+    printf("MOTIVO:\n");
+
+    scanf("%s", especialidadeEncaminhada);
+    scanf("%s", motivo);
+
+    if (retornaTipoAtor(s->usuario) == Medico)
+        insereDocumentoFila(s->fila, criaEncaminhamento(retornaNomeAtor(paciente), retornaCpfAtor(paciente), especialidadeEncaminhada, motivo, retornaNomeAtor(s->usuario), retornaCrmMedico(retornaAtorEspecifico(s->usuario)), data), imprimeNaTelaEncaminhamento, imprimeEmArquivoBiopsia, desalocaEncaminhamento);
+    if (retornaTipoAtor(s->usuario) == Secretario)
+        insereDocumentoFila(s->fila, criaEncaminhamento(retornaNomeAtor(paciente), retornaCpfAtor(paciente), especialidadeEncaminhada, motivo, "", "", data), imprimeNaTelaEncaminhamento, imprimeEmArquivoBiopsia, desalocaEncaminhamento);
+
+    printf("\n");
+    printf("ENCAMINHAMENTO ENVIADO PARA FILA DE IMPRESSAO. PRESSIONE QUALQUER TECLA PARA RETORNAR AO MENU ANTERIOR\n");
+    printf("############################################################\n");
+    scanf("%c", confirma);
 }

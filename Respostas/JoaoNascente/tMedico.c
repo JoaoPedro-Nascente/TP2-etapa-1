@@ -38,3 +38,8 @@ char *retornaSenhaMedico(void *m)
 {
     return ((tMedico *)m)->senha;
 }
+
+char *retornaCrmMedico(void *m)
+{
+    return ((tMedico *)m)->crm;
+}

@@ -78,3 +78,33 @@ void **le_bd_lesao(char *caminho_bd, char *nome_arquivo, int *tam)
     *tam = 0;
     return NULL;
 }
+
+char *retornaRotuloLesao(tLesao *lesao)
+{
+    return lesao->rotulo;
+}
+
+char *retornaDiagnosticoLesao(tLesao *lesao)
+{
+    return lesao->diagnostico;
+}
+
+char *retornaRegiaoLesao(tLesao *lesao)
+{
+    return lesao->regiao_corpo;
+}
+
+int retornaTamanhoLesao(tLesao *lesao)
+{
+    lesao->tamanho;
+}
+
+int foiCirurgia(tLesao *lesao)
+{
+    return lesao->cirurgia;
+}
+
+int foiCrioterapia(tLesao *lesao)
+{
+    return lesao->crioterapia;
+}

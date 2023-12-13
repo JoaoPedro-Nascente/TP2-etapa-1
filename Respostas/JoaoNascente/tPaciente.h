@@ -20,7 +20,7 @@ void consultaPaciente(void *paciente,
                       int fuma,
                       int possui_alergia,
                       int possui_historico_cancer,
-                      enum tipoPele tipoPele);
+                      char *tipoPele);
 
 void adiciona_lesao(void *paciente, void *l);
 
